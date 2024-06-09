@@ -14,8 +14,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "ai-powered-terminal.helloWorld",
-        "title": "Hello World"
+      "command": "ai-powered-terminal.start",
+      "title": "Start AI-Powered Terminal"
       }
     ]
   },

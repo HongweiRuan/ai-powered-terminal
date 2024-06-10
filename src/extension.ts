@@ -111,7 +111,7 @@ async function getSummary(content: string, apiKey: string): Promise<string> {
         const response = await axios.post(apiUrl, {
             model: 'gpt-4-turbo',
             messages: [{ role: 'user', content: content }],
-            max_tokens: 50
+            max_tokens: 100,
         }, {
             headers: {
                 'Authorization': `Bearer ${apiKey}`,

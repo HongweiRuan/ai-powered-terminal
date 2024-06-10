@@ -1,71 +1,89 @@
-# ai-powered-terminal README
+# AI-Powered Terminal
 
-This is the README for your extension "ai-powered-terminal". After writing up a brief description, we recommend including the following sections.
+AI-Powered Terminal 是一个 VS Code 扩展，它增强了终端输出的可读性，并能自动生成命令的总结。该扩展使用 OpenAI 的 GPT-4 模型来生成总结。
 
-## Features
+## 功能
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- 在终端中运行命令并生成输出
+- 自动生成命令输出的总结
+- 支持自定义颜色的分隔符
 
-For example if there is an image subfolder under your extension project workspace:
+## 安装
 
-\!\[feature X\]\(images/feature-x.png\)
+1. 克隆此仓库到本地：
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+    ```sh
+    git clone https://github.com/你的用户名/ai-powered-terminal.git
+    ```
 
-## Requirements
+2. 进入项目目录：
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+    ```sh
+    cd ai-powered-terminal
+    ```
 
-## Extension Settings
+3. 安装依赖：
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+    ```sh
+    npm install
+    ```
 
-For example:
+4. 打包扩展：
 
-This extension contributes the following settings:
+    ```sh
+    vsce package
+    ```
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+5. 在 VS Code 中安装打包的 `.vsix` 文件。
 
-## Known Issues
+## 使用
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+1. 打开 VS Code。
+2. 按 `Ctrl+Shift+P` (Windows/Linux) 或 `Cmd+Shift+P` (Mac) 打开命令面板。
+3. 输入 `AI-Powered Terminal: Start` 并选择相应的命令来启动 AI-Powered Terminal。
+4. 在终端中输入你的命令并按回车，AI 将自动生成输出总结并显示。
 
-## Release Notes
+## 设置
 
-Users appreciate release notes as you update your extension.
+首次使用时，扩展将提示你输入 OpenAI API Key。你可以在 VS Code 设置中更新此 API Key。
 
-### 1.0.0
+1. 首次输入 `AI-Powered Terminal: Start`后会提示输入您的API key
+2. 输入你的 OpenAI API Key。
 
-Initial release of ...
+## 开发
 
-### 1.0.1
+如果你想参与开发或对代码进行修改，请遵循以下步骤：
 
-Fixed issue #.
+1. 克隆此仓库到本地：
 
-### 1.1.0
+    ```sh
+    git clone https://github.com/HongweiRuan/ai-powered-terminal.git
+    ```
 
-Added features X, Y, and Z.
+2. 安装依赖：
 
----
+    ```sh
+    npm install
+    ```
 
-## Following extension guidelines
+3. 进行你想要的修改。
+4. 打包扩展：
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+    ```sh
+    vsce package
+    ```
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+5. 在 VS Code 中安装打包的 `.vsix` 文件。
 
-## Working with Markdown
+## 许可证
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+此项目遵循 MIT 许可证。详细信息请参阅 [LICENSE](LICENSE) 文件。
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+## 贡献
 
-## For more information
+欢迎提交问题和拉取请求。请确保您的代码符合项目的编码规范，并附上详细的提交信息。
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+## 联系方式
 
-**Enjoy!**
+如有任何问题或建议，请通过 [hongwei.ruan02@gmail] 联系我们。
+

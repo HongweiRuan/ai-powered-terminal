@@ -4,8 +4,19 @@ import * as child_process from 'child_process';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Activating extension');
-    let disposable = vscode.commands.registerCommand('ai-powered-terminal.start', () => {
-        console.log('Command ai-powered-terminal.start triggered');
+    let disposable = vscode.commands.registerCommand('ai-powered-terminal.start', async () => {
+        // console.log('Command ai-powered-terminal.start triggered');
+
+        let apiKey = context.globalState.get<string>('chatgptApiKey');
+        if (!apiKey) {
+            apiKey = await vscode.window.showInputBox({ prompt: 'Enter your OpenAI API Key' });
+            if (apiKey) {
+                context.globalState.update('chatgptApiKey', apiKey);
+            } else {
+                vscode.window.showErrorMessage('API Key is required to use this extension.');
+                return;
+            }
+        }
 
         const writeEmitter = new vscode.EventEmitter<string>();
         let userInput = '';
@@ -33,11 +44,11 @@ export function activate(context: vscode.ExtensionContext) {
                 shell.stdout.on('data', async (data) => {
                     const output = data.toString().replace(/\n/g, '\r\n');
                     writeEmitter.fire(output);
-                    writeEmitter.fire(blueSeprator);  
+                    writeEmitter.fire(blueSeprator);
                     // 调用 ChatGPT API 进行处理
                     if (data.length > 200) {
-                        const summary = await getSummary(output);
-                        writeEmitter.fire(`\x1b[32mSummary: ${summary}\x1b[0m\r\n`);
+                        const summary = await getSummary(output, apiKey);
+                        writeEmitter.fire(`\x1b[32mSummary:\r\n${summary}\x1b[0m\r\n`);
                         writeEmitter.fire(blueSeprator);
                     }
                 });
@@ -45,12 +56,15 @@ export function activate(context: vscode.ExtensionContext) {
                     const output = data.toString().replace(/\n/g, '\r\n');
                     writeEmitter.fire(`\x1b[31m${output}\x1b[0m`);
                 });
-                shell.on('exit', (code) => writeEmitter.fire(`\x1b[31mChild process exited with code ${code}\x1b[0m\r\n`));
+                shell.on('exit', (code) => {
+                    writeEmitter.fire(`\x1b[31mChild process exited with code ${code}\x1b[0m\r\n`);
+                    disposeTerminal();
+                });
             },
             close: () => { if (shell) shell.kill(); },
             handleInput: (data: string) => {
 
-               
+
 
                 if (data === '\r') {
                     shell.stdin.write(`${userInput}\n`);
@@ -73,6 +87,10 @@ export function activate(context: vscode.ExtensionContext) {
         const aiTerminal = vscode.window.createTerminal({ name: 'AI-Powered Terminal', pty });
         aiTerminal.show();
         // console.log('AI-Powered Terminal created and shown');
+
+        function disposeTerminal() {
+            aiTerminal.dispose();
+        }
     });
 
     context.subscriptions.push(disposable);
@@ -81,8 +99,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 
 
-async function getSummary(content: string): Promise<string> {
-    const apiKey = ''; // 确保这里是你有效的 API Key
+async function getSummary(content: string, apiKey: string): Promise<string> {
+    // const apiKey = ''; // 确保这里是你有效的 API Key
     const apiUrl = 'https://api.openai.com/v1/chat/completions'; // 确认 URL 是否正确
 
     console.log('Sending request to:', apiUrl);
@@ -91,7 +109,7 @@ async function getSummary(content: string): Promise<string> {
 
     try {
         const response = await axios.post(apiUrl, {
-            model: 'gpt-3.5-turbo',
+            model: 'gpt-4-turbo',
             messages: [{ role: 'user', content: content }],
             max_tokens: 50
         }, {

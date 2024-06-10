@@ -8,34 +8,6 @@ AI-Powered Terminal 是一个 VS Code 扩展，它增强了终端输出的可读
 - 自动生成命令输出的总结
 - 支持自定义颜色的分隔符
 
-## 安装
-
-1. 克隆此仓库到本地：
-
-    ```sh
-    git clone https://github.com/HongweiRuan/ai-powered-terminal.git
-    ```
-
-2. 进入项目目录：
-
-    ```sh
-    cd ai-powered-terminal
-    ```
-
-3. 安装依赖：
-
-    ```sh
-    npm install
-    ```
-
-4. 打包扩展：
-
-    ```sh
-    vsce package
-    ```
-
-5. 在 VS Code 中安装打包的 `.vsix` 文件。
-
 ## 使用
 
 1. 打开 VS Code。

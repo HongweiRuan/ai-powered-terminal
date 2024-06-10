@@ -13,7 +13,7 @@ AI-Powered Terminal 是一个 VS Code 扩展，它增强了终端输出的可读
 1. 克隆此仓库到本地：
 
     ```sh
-    git clone https://github.com/你的用户名/ai-powered-terminal.git
+    git clone https://github.com/HongweiRuan/ai-powered-terminal.git
     ```
 
 2. 进入项目目录：

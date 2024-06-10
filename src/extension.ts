@@ -2,166 +2,83 @@ import * as vscode from 'vscode';
 import axios from 'axios';
 import * as child_process from 'child_process';
 
-
-
-// export function activate(context: vscode.ExtensionContext) {
-// // console.log('Activating extension');
-// let disposable = vscode.commands.registerCommand('ai-powered-terminal.start', () => {
-// // console.log('Command ai-powered-terminal.start triggered');
-
-// // 事件发射器，用于向终端发送数据
-// const writeEmitter = new vscode.EventEmitter<string>();
-// let userInput = '';
-
-// const pty: vscode.Pseudoterminal = {
-// onDidWrite: writeEmitter.event,
-// open: () => {
-// writeEmitter.fire('AI-Powered Terminal started.\r\n');
-// },
-// close: () => { },
-// // handleInput: (data: string) => {
-// // if (data === '\r') { // Enter key pressed
-// // console.log(`User input: ${userInput}`);
-// // // 创建一个 Node.js 子进程来运行用户的默认shell
-// // const proc = child_process.spawn(process.env.SHELL || 'bash', ['-c', userInput]);
-// // userInput = ''; // 清空输入缓存
-
-// // proc.stdout.on('data', async (outputData) => {
-// // const output = outputData.toString();
-// // console.log(`Captured output: ${output}`);
-
-// // // 调用 ChatGPT API 进行处理
-// // const summary = await getSummary(output);
-// // console.log(`Summary: ${summary}`);
-
-// // // 在终端中显示处理后的输出
-// // writeEmitter.fire(output);
-// // writeEmitter.fire(`\x1b[32mSummary: ${summary}\x1b[0m\r\n`);
-// // });
-
-// // proc.stderr.on('data', (outputData) => {
-// // console.error(`Error output: ${outputData.toString()}`);
-// // writeEmitter.fire(`\x1b[31mError: ${outputData.toString()}\x1b[0m\r\n`);
-// // });
-
-// // proc.on('exit', (code) => {
-// // console.log(`Child process exited with code ${code}`);
-// // writeEmitter.fire(`\x1b[31mChild process exited with code ${code}\x1b[0m\r\n`);
-// // });
-// // } else if (data === '\x7f') { // Backspace key pressed
-// // userInput = userInput.slice(0, -1);
-// // } else {
-// // userInput += data; // 将用户输入缓存
-// // }
-// // }
-// handleInput: (data: string) => {
-// console.log(`User input: ${data}`);
-// // 创建一个 Node.js 子进程来运行用户的默认shell
-// const proc = child_process.spawn(process.env.SHELL || 'bash', ['-c', data]);
-// console.log('Child process spawned');
-
-// // 监听子进程的输出
-// proc.stdout.on('data', async (outputData) => {
-// const output = outputData.toString();
-// console.log(`Captured output: ${output}`);
-
-// // 调用 ChatGPT API 进行处理
-// const summary = await getSummary(output);
-// console.log(`Summary: ${summary}`);
-
-// // 在终端中显示处理后的输出
-// writeEmitter.fire(output);
-// writeEmitter.fire(`\x1b[32mSummary: ${summary}\x1b[0m\r\n`);
-// });
-
-// proc.stderr.on('data', (outputData) => {
-// console.error(`Error output: ${outputData.toString()}`);
-// writeEmitter.fire(`\x1b[31mError: ${outputData.toString()}\x1b[0m\r\n`);
-// });
-
-// proc.on('exit', (code) => {
-// console.log(`Child process exited with code ${code}`);
-// writeEmitter.fire(`\x1b[31mChild process exited with code ${code}\x1b[0m\r\n`);
-// });
-// }
-// };
-
-// // 创建一个伪终端
-// const aiTerminal = vscode.window.createTerminal({ name: 'AI-Powered Terminal', pty });
-// aiTerminal.show();
-// // console.log('AI-Powered Terminal created and shown');
-// });
-
-// context.subscriptions.push(disposable);
-// console.log('Extension activated and command registered');
-// }
-
-
 export function activate(context: vscode.ExtensionContext) {
     console.log('Activating extension');
     let disposable = vscode.commands.registerCommand('ai-powered-terminal.start', () => {
         console.log('Command ai-powered-terminal.start triggered');
 
-        // 事件发射器，用于向终端发送数据
         const writeEmitter = new vscode.EventEmitter<string>();
         let userInput = '';
+        const separator = '----------------------------\r\n';
+        const blueSeprator = '\x1b[34m------------------------------------------------------------\x1b[0m\r\n';
+        const redSeprator = '\x1b[31m------------------------------------------------------------\x1b[0m\r\n';
+        // const uid = typeof process.getuid === 'function' ? process.getuid() : undefined;
+        // const gid = typeof process.getgid === 'function' ? process.getgid() : undefined;
+
+        // 获取用户的 shell 配置文件路径
+        const shellConfig = process.env.SHELL || 'bash';
+        const shellConfigArgs = ['--login'];
+
+        let shell = child_process.spawn(shellConfig, shellConfigArgs, {
+            env: process.env,
+            // uid,
+            // gid,
+        });
 
         const pty: vscode.Pseudoterminal = {
             onDidWrite: writeEmitter.event,
             open: () => {
                 writeEmitter.fire('AI-Powered Terminal started.\r\n');
-            },
-            close: () => { },
-            handleInput: (data: string) => {
-                if (data === '\r') { // Enter key pressed
-                    console.log(`User input: ${userInput}`);
-                    // 创建一个 Node.js 子进程来运行用户的默认shell
-                    const proc = child_process.spawn(process.env.SHELL || 'bash', ['-c', userInput]);
-                    userInput = ''; // 清空输入缓存
-
-                    proc.stdout.on('data', async (outputData) => {
-                        const output = outputData.toString();
-                        console.log(`Captured output: ${output}`);
-
-                        // 调用 ChatGPT API 进行处理
+                writeEmitter.fire(separator);
+                shell.stdout.on('data', async (data) => {
+                    const output = data.toString().replace(/\n/g, '\r\n');
+                    writeEmitter.fire(output);
+                    writeEmitter.fire(blueSeprator);  
+                    // 调用 ChatGPT API 进行处理
+                    if (data.length > 200) {
                         const summary = await getSummary(output);
-                        console.log(`Summary: ${summary}`);
-
-                        // 在终端中显示处理后的输出
-                        writeEmitter.fire(output);
                         writeEmitter.fire(`\x1b[32mSummary: ${summary}\x1b[0m\r\n`);
-                    });
+                        writeEmitter.fire(blueSeprator);
+                    }
+                });
+                shell.stderr.on('data', (data) => {
+                    const output = data.toString().replace(/\n/g, '\r\n');
+                    writeEmitter.fire(`\x1b[31m${output}\x1b[0m`);
+                });
+                shell.on('exit', (code) => writeEmitter.fire(`\x1b[31mChild process exited with code ${code}\x1b[0m\r\n`));
+            },
+            close: () => { if (shell) shell.kill(); },
+            handleInput: (data: string) => {
 
-                    proc.stderr.on('data', (outputData) => {
-                        console.error(`Error output: ${outputData.toString()}`);
-                        writeEmitter.fire(`\x1b[31mError: ${outputData.toString()}\x1b[0m\r\n`);
-                    });
+               
 
-                    proc.on('exit', (code) => {
-                        console.log(`Child process exited with code ${code}`);
-                        writeEmitter.fire(`\x1b[31mChild process exited with code ${code}\x1b[0m\r\n`);
-                    });
-                } else if (data === '\x7f') { // Backspace key pressed
+                if (data === '\r') {
+                    shell.stdin.write(`${userInput}\n`);
+                    writeEmitter.fire(`\r\n`);  // 在伪终端中添加新行
+                    writeEmitter.fire(redSeprator);  // 在伪终端中添加分隔符
+                    writeEmitter.fire(`\r\n`);  // 在伪终端中添加新行
+                    userInput = '';
+                } else if (data === '\x7f') {
                     if (userInput.length > 0) {
                         userInput = userInput.slice(0, -1);
-                        writeEmitter.fire('\b \b'); // 在终端中删除最后一个字符
+                        writeEmitter.fire('\b \b');  // 在伪终端中处理退格
                     }
                 } else {
-                    userInput += data; // 将用户输入缓存
-                    writeEmitter.fire(data); // 在终端中显示输入字符
+                    userInput += data;
+                    writeEmitter.fire(data);
                 }
             }
         };
 
-        // 创建一个伪终端
         const aiTerminal = vscode.window.createTerminal({ name: 'AI-Powered Terminal', pty });
         aiTerminal.show();
-        console.log('AI-Powered Terminal created and shown');
+        // console.log('AI-Powered Terminal created and shown');
     });
 
     context.subscriptions.push(disposable);
-    console.log('Extension activated and command registered');
+    // console.log('Extension activated and command registered');
 }
+
 
 
 async function getSummary(content: string): Promise<string> {
@@ -184,7 +101,7 @@ async function getSummary(content: string): Promise<string> {
             }
         });
         console.log('API Response:', response.data);
-        return response.data.choices[0].message.content.trim();
+        return response.data.choices[0].message.content.trim().replace(/\n/g, '\r\n');
     } catch (error: any) {
         console.error('Error fetching summary:', error);
         if (error.response) {
